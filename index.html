@@ -36,7 +36,15 @@ header.top{background:linear-gradient(120deg,var(--accent),#5c0a63);color:#fff;b
 header.top h1{margin:0 0 4px;font-size:24px;letter-spacing:-.3px}
 header.top p{margin:0;color:#e9d6ec;font-size:14px}
 .updated{position:absolute;top:18px;right:22px;font-size:12px;color:#e9d6ec;text-align:right}
-.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0 14px}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;margin:18px 0 4px;flex-wrap:wrap}
+.tab{flex:1;min-width:130px;text-align:center;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .12s ease}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.view{display:none}
+.view.active{display:block}
+
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 14px}
 .controls input[type=search]{flex:1;min-width:200px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff}
 .controls select{padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff;color:var(--ink)}
 .count{font-size:13px;color:var(--muted);margin-left:auto}
@@ -57,6 +65,26 @@ header.top p{margin:0;color:#e9d6ec;font-size:14px}
 .tag.stage{font-weight:600}
 .why{font-size:13px;color:#475569;margin:0}
 .src{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* Club view */
+.clubnav{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.clubnav a{font-size:12px;padding:5px 9px;border:1px solid var(--line);border-radius:99px;background:#fff;color:#475569;text-decoration:none}
+.clubcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;box-shadow:var(--shadow);scroll-margin-top:12px}
+.clubcard h3{margin:0 0 8px;font-size:18px;display:flex;align-items:center;gap:8px}
+.needbox{background:#faf7fb;border:1px solid #efe3f1;border-radius:10px;padding:10px 12px;margin:4px 0 12px}
+.needbox .lbl{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--accent);margin:0 0 5px}
+.needtags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:7px}
+.needtags .tag{background:#fff;border-color:#e6d4ea;color:var(--accent);font-weight:600}
+.needtext{font-size:13px;color:#475569;margin:0}
+.cl-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cl-cols h4{margin:0 0 6px;font-size:12px;font-weight:800;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
+.linkrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.linkrow:last-child{border-bottom:0}
+.linkrow .lp{font-weight:600;color:var(--ink)}
+.linkrow .lsub{color:var(--muted);font-size:12px}
+.linkpct{margin-left:auto;font-weight:800;font-size:13px}
+.emptyk{font-size:12.5px;color:var(--muted);padding:6px 0}
+
 footer{margin-top:24px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
 .method{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:18px;box-shadow:var(--shadow)}
 .method summary{cursor:pointer;font-weight:700;font-size:14px}
@@ -64,7 +92,7 @@ footer{margin-top:24px;font-size:12px;color:var(--muted);border-top:1px solid va
 .method table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
 .method td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .method td:first-child{font-weight:600;white-space:nowrap;color:var(--ink)}
-@media(max-width:560px){.card{grid-template-columns:52px 1fr}.pct{font-size:22px}}
+@media(max-width:560px){.card{grid-template-columns:52px 1fr}.pct{font-size:22px}.cl-cols{grid-template-columns:1fr;gap:10px}}
 </style>
 </head>
 <body>
@@ -72,88 +100,142 @@ footer{margin-top:24px;font-size:12px;color:var(--muted);border-top:1px solid va
   <header class="top">
     <div class="updated" id="updated"></div>
     <h1>⚽ Premier League Transfer Rumour Tracker</h1>
-    <p>Every live rumour across the 20 clubs, ranked by likelihood of happening. Summer 2026 window.</p>
+    <p>Every live rumour across the 20 clubs, ranked by likelihood — plus what each club is chasing and still needs. Summer 2026 window.</p>
   </header>
 
-  <div class="controls">
-    <input type="search" id="search" placeholder="Search player, club or position…">
-    <select id="club"></select>
-    <select id="sort">
-      <option value="pct">Sort: Most likely first</option>
-      <option value="pctAsc">Sort: Least likely first</option>
-      <option value="club">Sort: By club (A–Z)</option>
-    </select>
-    <span class="count" id="count"></span>
+  <div class="tabs">
+    <div class="tab active" data-view="rumours">🔥 Rumours</div>
+    <div class="tab" data-view="clubs">🏟️ By club</div>
   </div>
 
-  <div class="legend">
-    <span><span class="dot" style="background:var(--hi)"></span>70%+ likely / near-done</span>
-    <span><span class="dot" style="background:var(--mid)"></span>40–69% live & plausible</span>
-    <span><span class="dot" style="background:var(--lo)"></span>Under 40% speculative</span>
+  <!-- ===== RUMOURS VIEW ===== -->
+  <div class="view active" id="view-rumours">
+    <div class="controls">
+      <input type="search" id="search" placeholder="Search player, club or position…">
+      <select id="club"></select>
+      <select id="sort">
+        <option value="pct">Sort: Most likely first</option>
+        <option value="pctAsc">Sort: Least likely first</option>
+        <option value="club">Sort: By club (A–Z)</option>
+      </select>
+      <span class="count" id="count"></span>
+    </div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:var(--hi)"></span>70%+ likely / near-done</span>
+      <span><span class="dot" style="background:var(--mid)"></span>40–69% live & plausible</span>
+      <span><span class="dot" style="background:var(--lo)"></span>Under 40% speculative</span>
+    </div>
+
+    <div id="list"></div>
+
+    <details class="method">
+      <summary>How the likelihood % is calculated</summary>
+      <p>Each rumour gets a blended score from four weighted signals. There's no single "transfer probability" feed, so this combines the things that actually predict whether a deal happens:</p>
+      <table>
+        <tr><td>Deal stage (40%)</td><td>How far the deal has progressed — from "monitoring / admirer" up to "agreed, here we go". The single biggest predictor.</td></tr>
+        <tr><td>Source reliability (30%)</td><td>Who's reporting it. Tier-1 (Fabrizio Romano, Sky Sports, club-confirmed) scores high; single tabloid or foreign-paper speculation scores low.</td></tr>
+        <tr><td>Consensus / volume (20%)</td><td>How many credible outlets corroborate it, and whether the story is building or going quiet.</td></tr>
+        <tr><td>Market signal (10%)</td><td>Bookmaker "next club" odds where a market exists, plus fee-gap realism (how far apart the clubs are on price).</td></tr>
+      </table>
+      <p style="margin-top:10px">Scores are a judgement-based estimate, not a guarantee — treat them as a ranking guide, not betting advice.</p>
+    </details>
   </div>
 
-  <div id="list"></div>
-
-  <details class="method">
-    <summary>How the likelihood % is calculated</summary>
-    <p>Each rumour gets a blended score from four weighted signals. There's no single "transfer probability" feed, so this combines the things that actually predict whether a deal happens:</p>
-    <table>
-      <tr><td>Deal stage (40%)</td><td>How far the deal has progressed — from "monitoring / admirer" up to "agreed, here we go". The single biggest predictor.</td></tr>
-      <tr><td>Source reliability (30%)</td><td>Who's reporting it. Tier-1 (Fabrizio Romano, Sky Sports, club-confirmed) scores high; single tabloid or foreign-paper speculation scores low.</td></tr>
-      <tr><td>Consensus / volume (20%)</td><td>How many credible outlets corroborate it, and whether the story is building or going quiet.</td></tr>
-      <tr><td>Market signal (10%)</td><td>Bookmaker "next club" odds where a market exists, plus fee-gap realism (how far apart the clubs are on price).</td></tr>
-    </table>
-    <p style="margin-top:10px">Scores are a judgement-based estimate, not a guarantee — treat them as a ranking guide, not betting advice.</p>
-  </details>
+  <!-- ===== CLUBS VIEW ===== -->
+  <div class="view" id="view-clubs">
+    <p style="font-size:13px;color:var(--muted);margin:14px 0 4px">Each club's squad priorities this window, and every player currently linked with a move in or out. Jump to a club:</p>
+    <div class="clubnav" id="clubnav"></div>
+    <div id="clublist"></div>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px">Squad-needs are an editorial read of each squad's gaps, informed by their current business and reporting from the Premier League site, Sky Sports and Football365. Links are drawn live from the rumours list.</p>
+  </div>
 
   <footer>
-    Data compiled from Football365's daily rumour ranking, FootballTransfers, Sky Sports and Fabrizio Romano reporting. Confirmed deals (✅) drop off once they age out. Likelihood scores are an editorial estimate. Last refreshed: <span id="footdate"></span>.
+    Data compiled from Football365's daily rumour ranking, FootballTransfers, Sky Sports, the Premier League site and Fabrizio Romano reporting. Confirmed deals (✅) drop off once they age out. Likelihood scores and club needs are an editorial estimate. Last refreshed: <span id="footdate"></span>.
   </footer>
 </div>
 
 <script>
-const LAST_UPDATED = "2026-07-26";
+const LAST_UPDATED = "2026-07-27";
 
 // Each rumour: player, from, to, pos, fee, stage, score, why, src
 const RUMOURS = [
-  {player:"Maxence Lacroix", from:"Crystal Palace", to:"Chelsea", pos:"Centre-back", fee:"~£35m", stage:"Deal agreed — finalising", score:88, why:"Now the frontrunner. Chelsea have effectively agreed a deal for their top centre-back target at around £35m; the Palace-replacement blocker that stalled it has cleared and the World Cup is over. Considered close.", src:"FootballTransfers / Football365"},
-  {player:"Trevoh Chalobah", from:"Chelsea", to:"Como", pos:"Centre-back", fee:"Chelsea want €40m", stage:"Bidding — Como return with fresh offer", score:84, why:"Live and moving. Como tabled a fresh €30m bid; Chelsea rejected it and raised their ask to €40m. With Lacroix incoming, Chalobah drops the pecking order and is expected to leave — a gap on fee is all that remains.", src:"FootballTransfers / The Hard Tackle"},
+  {player:"Maxence Lacroix", from:"Crystal Palace", to:"Chelsea", pos:"Centre-back", fee:"~£52m", stage:"✅ Medical done — to be announced", score:96, why:"All but done. Lacroix completed a Chelsea medical on Friday and has agreed a contract to June 2032; only the formal announcement of the ~£52m move for Chelsea's top centre-back target remains.", src:"Sports Mole / FootballTransfers"},
+  {player:"Lucas Digne", from:"Aston Villa", to:"PSG", pos:"Left-back", fee:"£8.5m release clause", stage:"Clause triggered — completing", score:90, why:"PSG triggered the £8.5m release clause and Digne, 33, has agreed a Paris return; Villa have Maatsen ready and save nearly £300k/week in wages. Only the formal announcement is outstanding.", src:"Romano / Football365"},
+  {player:"Ederson", from:"Atalanta", to:"Man Utd", pos:"Midfielder", fee:"~£38m", stage:"Deal agreed — finalising", score:88, why:"United have agreed a deal worth around £38m with Atalanta for the Brazil midfielder to fill the Casemiro-shaped hole in front of the defence, with personal terms and structure in place.", src:"Sky Sports / Romano"},
+  {player:"Joao Gomes", from:"Wolves", to:"Aston Villa", pos:"Midfielder", fee:"£38m", stage:"Verbal agreement — bid accepted", score:86, why:"Villa have struck a verbal agreement and had a bid accepted for the combative Wolves midfielder — classic quiet, quick Villa business as they reshape the engine room around the Rogers windfall.", src:"Football365"},
   {player:"Pep Chavarria", from:"Rayo Vallecano", to:"Chelsea", pos:"Left-back", fee:"2nd bid ~£15m", stage:"Terms agreed, expected to sign", score:82, why:"Romano has personal terms agreed and Chelsea are 'expected to sign' the Rayo left-back. Friction is only with Rayo over the fee after they banked £50m+ for their last full-back, but everyone sounds confident.", src:"Romano / Football365"},
-  {player:"Lucas Digne", from:"Aston Villa", to:"PSG", pos:"Left-back", fee:"£8.5m release clause", stage:"Clause triggered — completing", score:80, why:"All but done. PSG triggered the £8.5m release clause and Digne, 33 next week, agreed a Paris return; Villa have Maatsen ready and save nearly £300k/week in wages. Only the formal announcement outstanding.", src:"Romano / Football365"},
-  {player:"Ayyoub Bouaddi", from:"Lille", to:"Man City", pos:"Midfielder", fee:"Lille want ~£85m", stage:"City 'pushing hard'", score:70, why:"City are pushing hard after the 18-year-old starred for Morocco, and want him in Manchester straight away rather than on a loan-back. PSG are out; Liverpool could still gatecrash. Lille's £85m valuation is the main hurdle.", src:"Ornstein / Football365"},
-  {player:"Savinho", from:"Man City", to:"Tottenham", pos:"Winger", fee:"TBC", stage:"Breakthrough reported 'close'", score:66, why:"Rumbling on for 12 months across three windows. The player is keen and Spurs are finally reported 'close' to a breakthrough with City — though nobody is quite sure what either club ultimately wants.", src:"Romano / Football365"},
-  {player:"Carlos Baleba", from:"Brighton", to:"Man Utd", pos:"Midfielder", fee:"Price down to ~£70m", stage:"Agents re-open talks", score:62, why:"Rising. Baleba's camp have approached United to reopen talks and his price has dropped to ~£70m. Romano says the player has long wanted Old Trafford — 'pushing like crazy' a year ago. United value him nearer £50m, so a gap remains.", src:"Romano / Football365"},
-  {player:"Lucas Bergvall", from:"Tottenham", to:"Nott'm Forest", pos:"Midfielder", fee:"Offers on table", stage:"Player pushing for exit", score:62, why:"After spending £237m on six signings, Spurs may need to sell, and Bergvall is actively pursuing an exit rather than sit behind Tonali and Fernandes. Both Forest and Newcastle have offers on the table.", src:"Football365"},
-  {player:"Manu Kone", from:"Roma", to:"Man Utd", pos:"Midfielder", fee:"Roma want £47.5m+", stage:"'Deal to be done' this summer", score:58, why:"Clamour growing. United still need a no.6 and Kone fits; Corriere dello Sport says Roma will accept around £47.5m and F365 hears 'there is a deal to be done'. With France out of the World Cup, movement is expected soon.", src:"Romano / Corriere dello Sport"},
-  {player:"Ezri Konsa", from:"Aston Villa", to:"Arsenal", pos:"Defender", fee:"TBC", stage:"Arsenal 'preparing a bid'", score:55, why:"Saliba's injury adds urgency and Arsenal are 'preparing a bid'. Villa's financial position could open the door. The old 'double Villa deal' framing is gone now Rogers has joined Chelsea, but Konsa alone remains a live target.", src:"Football365"},
-  {player:"Eli Junior Kroupi", from:"Bournemouth", to:"Tottenham", pos:"Striker", fee:"£75m rejected", stage:"Spurs prepared to go higher", score:54, why:"Spurs have had one bid of around £75m rejected but are willing to go considerably higher for the 20-year-old, showing the same intent that landed Tonali and Fernandes. Kroupi has already rejected PSG.", src:"Football365"},
-  {player:"Bruno Guimaraes", from:"Newcastle", to:"Arsenal", pos:"Midfielder", fee:"Newcastle want ~£100m", stage:"Arsenal weighing it up", score:48, why:"Cooled. Arsenal were told the player's camp that £50m would do it — 'clearly b*llocks' — and Newcastle are holding out nearer £100m. The Gunners still rate him good value but have three other £100m-plus targets to weigh.", src:"Football365"},
-  {player:"Cristian Romero", from:"Tottenham", to:"Inter Milan", pos:"Centre-back", fee:"'Realistic' terms set", stage:"Expected to leave", score:46, why:"Romero is done at Spurs after last season's shambles prompted two new centre-back signings. The club have set 'realistic' sale terms, with Inter Milan the likeliest destination and Barcelona also monitoring.", src:"Football365"},
-  {player:"Liam Delap", from:"Chelsea", to:"Everton", pos:"Striker", fee:"~£40m ask", stage:"Everton in pole, contract offered", score:46, why:"Everton are pushing hard, have offered Delap a contract and are in pole for a permanent deal. Moyes has wanted him a year; Chelsea want a profit near £40m. Some sources still say Delap fancies fighting for his place.", src:"Football Insider / TEAMtalk"},
-  {player:"Julian Alvarez", from:"Atletico Madrid", to:"Arsenal", pos:"Striker", fee:"Atletico want £100m+", stage:"Arsenal pushing, Atletico cool", score:44, why:"Arsenal are pushing to seal this shortly after the World Cup and may offer Gyokeres in part-exchange, but Barcelona's £85m bid is still on the table, Atletico want £100m-plus, and their latest sentiment is a refusal to sell.", src:"Football365 / Romano"},
-  {player:"Yan Diomande", from:"RB Leipzig", to:"Liverpool", pos:"Winger", fee:"TBC", stage:"Liverpool given fresh hope", score:44, why:"Back on. Having looked off the table, Liverpool are 'given new hope' over the winger as they chase a Salah replacement — but F365 warns they'll hit the same obstacles that ended PSG's pursuit. One to watch after Rayan.", src:"Football365"},
-  {player:"Adam Wharton", from:"Crystal Palace", to:"Liverpool", pos:"Midfielder", fee:"~£100m-rated", stage:"Not the priority target", score:42, why:"Liverpool's overwhelming priority is a winger to replace Salah, but an extra midfielder isn't out of the question. The snags: Wharton isn't their 'top target', he's rated near £100m, and Palace want to keep him another year.", src:"Football365"},
-  {player:"Emiliano Martinez", from:"Aston Villa", to:"Juventus", pos:"Goalkeeper", fee:"~£10m", stage:"Villa softening demands", score:40, why:"Di Marzio reports Villa have begun softening their demands for the World Cup-winning keeper. Juventus have long been keen, and Villa's own goalkeeper scouting suggests they're planning for life without him.", src:"Di Marzio"},
-  {player:"Curtis Jones", from:"Liverpool", to:"Nott'm Forest", pos:"Midfielder", fee:"TBC", stage:"Forest enquiries", score:40, why:"Forest, sitting on the Elliot Anderson windfall, have Jones on their agenda — which suits Liverpool after Inter talks stalled short of an agreement. No fee discussed publicly yet.", src:"Football365"},
-  {player:"Ismaila Sarr", from:"Crystal Palace", to:"Man Utd", pos:"Forward", fee:"Palace want £45m+", stage:"Enquiry made", score:36, why:"With Summerville off to Al-Hilal, United have enquired about the Palace man — a boyhood United fan fresh off a 21-goal season. Palace will demand a hefty fee, but the player is keen.", src:"FootballTransfers"},
-  {player:"Alex Scott", from:"Bournemouth", to:"Man Utd", pos:"Midfielder", fee:"Bournemouth want £70m", stage:"United cooling, player favours Arsenal", score:34, why:"Faller. United are only willing to pay around £40m and are close to walking away after Bournemouth stood firm on a £70m valuation. The England man is also said to favour a move to Arsenal, muddying United's pursuit.", src:"Football365 / TEAMtalk"},
-  {player:"Joshua Zirkzee", from:"Man Utd", to:"Juventus", pos:"Striker", fee:"TBC", stage:"Re-emerged as target", score:34, why:"Juventus have re-emerged as suitors for the out-of-favour United striker, who could be moved on as Carrick reshapes the front line. Early but a genuine exit route.", src:"FootballTransfers"},
-  {player:"Rayan", from:"Bournemouth", to:"Liverpool", pos:"Winger", fee:"£130m release clause", stage:"Target, clause an obstacle", score:32, why:"With Diomande and Barcola off the table, Liverpool turned to the Bournemouth sensation as a Salah replacement. He took to the Premier League like a duck to water — but a £130m release clause makes it very difficult.", src:"Football365"},
-  {player:"John Stones", from:"Man City", to:"Chelsea", pos:"Centre-back", fee:"Free agent", stage:"Chelsea exploring", score:30, why:"Now confirmed released by City, Stones is on Alonso's radar as Chelsea weigh a second centre-back alongside the Lacroix push. Experience and no fee make him an appealing low-risk add.", src:"FootballTransfers"},
-  {player:"Danilo Santos", from:"Botafogo", to:"Man Utd", pos:"Midfielder", fee:"~£34m", stage:"Talks opened", score:30, why:"United opened talks with Botafogo as they hunt a midfielder alongside Tielemans. Early-stage, but a live line given how thin United's options are with Scott stalling and Baleba unresolved.", src:"Football365"},
-  {player:"Jhon Lucumi", from:"Bologna", to:"Man Utd", pos:"Centre-back", fee:"TBC", stage:"United made approach", score:28, why:"United have made an approach for the Bologna centre-back as they weigh defensive reinforcements. Early contact, no fee framework yet, and one of several names on Carrick's list.", src:"FootballTransfers"},
-  {player:"Malo Gusto", from:"Chelsea", to:"Man City", pos:"Right-back", fee:"Chelsea ask €87m", stage:"Player willing, clubs far apart", score:26, why:"Gusto has reportedly agreed to join City, with Palestra's arrival squeezing him out at Stamford Bridge — but Chelsea's €87m ask is considered prohibitive and the clubs remain a long way apart.", src:"FootballTransfers"},
-  {player:"Granit Xhaka", from:"Sunderland", to:"Chelsea", pos:"Midfielder", fee:"£8m offer 'an insult'", stage:"Faller — deal looks off", score:18, why:"Chelsea's £8m offer for Sunderland's captain was branded an insult and reports suggest the deal is off. Xhaka still wants the Alonso reunion, but Chelsea would have to more than double their valuation.", src:"The Athletic / FootballTransfers"},
-  {player:"Vinicius Junior", from:"Real Madrid", to:"Liverpool", pos:"Winger", fee:"Free (next summer)", stage:"Speculative — leverage play", score:15, why:"Long shot. A Spanish journalist claims Liverpool are plotting to sign Vini Jr on a free next summer — which reads far more like the Reds being used to pressure Real Madrid in their ongoing contract talks than a real move.", src:"Football365"}
+  {player:"Christos Tzolis", from:"Club Brugge", to:"Arsenal", pos:"Winger", fee:"~£35m", stage:"Agreement between clubs", score:80, why:"Arsenal have reached agreement with Club Brugge for the winger at around £35m and are pressing ahead even with Barcola and other wide names in the mix — a sign they'll add real width this window.", src:"Football365"},
+  {player:"Trevoh Chalobah", from:"Chelsea", to:"Como", pos:"Centre-back", fee:"Chelsea want ~€40m", stage:"Talks stalled — still expected to leave", score:74, why:"Saturday's meeting with Como ended without agreement and talks have stalled on the fee, but with Lacroix arriving Chalobah drops the pecking order and is still widely expected to move on before deadline.", src:"Sports Mole / FootballTransfers"},
+  {player:"Alejandro Garnacho", from:"Chelsea", to:"Roma", pos:"Winger", fee:"Loan + ~£30m option", stage:"Terms being finalised", score:72, why:"Roma's 'generous' loan-with-option package is advancing and Chelsea look willing to let Garnacho go for regular football, even if they're unlikely to recoup their outlay in the structure.", src:"Football365"},
+  {player:"Ayyoub Bouaddi", from:"Lille", to:"Man City", pos:"Midfielder", fee:"Lille want ~£85m", stage:"City 'pushing hard'", score:68, why:"City are pushing hard after the 18-year-old starred for Morocco and want him in Manchester straight away rather than on a loan-back. PSG are out; Liverpool could still gatecrash. Lille's £85m valuation is the hurdle.", src:"Ornstein / Football365"},
+  {player:"Savinho", from:"Man City", to:"Tottenham", pos:"Winger", fee:"TBC", stage:"Breakthrough reported 'close'", score:66, why:"Rumbling on for 12 months across three windows. The player is keen and Spurs — light on senior wingers — are finally reported 'close' to a breakthrough with City, though the fee remains unclear.", src:"Romano / Football365"},
+  {player:"Carlos Baleba", from:"Brighton", to:"Man Utd", pos:"Midfielder", fee:"Price down to ~£70m", stage:"Agents re-open talks", score:60, why:"Rising. Baleba's camp have approached United to reopen talks and his price has dropped to ~£70m. Romano says the player has long wanted Old Trafford. United value him nearer £50m, so a gap remains.", src:"Romano / Football365"},
+  {player:"Lucas Bergvall", from:"Tottenham", to:"Nott'm Forest", pos:"Midfielder", fee:"Offers on table", stage:"Player pushing for exit", score:58, why:"After spending big on Tonali and others, Spurs may need to sell, and Bergvall is actively pursuing an exit rather than sit on the bench. Both Forest and Newcastle have offers on the table.", src:"Football365"},
+  {player:"Manu Kone", from:"Roma", to:"Man Utd", pos:"Midfielder", fee:"Roma want £47.5m+", stage:"'Deal to be done' this summer", score:56, why:"United still need a no.6 and Kone fits; Corriere dello Sport says Roma will accept around £47.5m and F365 hears 'there is a deal to be done'. With France out of the World Cup, movement is expected soon.", src:"Romano / Corriere dello Sport"},
+  {player:"Ezri Konsa", from:"Aston Villa", to:"Arsenal", pos:"Centre-back", fee:"TBC", stage:"Arsenal 'preparing a bid'", score:54, why:"Saliba's injury adds urgency and Arsenal are 'preparing a bid'. Villa's need to sell for PSR could open the door for a versatile defender who covers centre-back and right-back.", src:"Football365"},
+  {player:"Eli Junior Kroupi", from:"Bournemouth", to:"Tottenham", pos:"Striker", fee:"£75m rejected", stage:"Spurs prepared to go higher", score:52, why:"Spurs have had one bid of around £75m rejected but are willing to go considerably higher for the 20-year-old, showing the same intent that landed Tonali. Man City are also monitoring; Kroupi has already rejected PSG.", src:"Football365"},
+  {player:"Liam Delap", from:"Chelsea", to:"Everton", pos:"Striker", fee:"~£40m ask", stage:"Everton in pole, contract offered", score:48, why:"Everton are pushing hard, have offered Delap a contract and are in pole for a permanent deal. Moyes has wanted him a year; Chelsea, overloaded up front, want a profit near £40m.", src:"Football Insider / TEAMtalk"},
+  {player:"Cristian Romero", from:"Tottenham", to:"Inter Milan", pos:"Centre-back", fee:"'Realistic' terms set", stage:"Expected to leave — Chelsea sniffing", score:46, why:"Spurs have set 'realistic' sale terms and Inter are the likeliest home, but Chelsea have now emerged with shock interest as a possible Chalobah replacement, adding a Premier League twist.", src:"Football365 / Sports Mole"},
+  {player:"Bruno Guimaraes", from:"Newcastle", to:"Arsenal", pos:"Midfielder", fee:"Newcastle want ~£100m", stage:"Arsenal weighing it up", score:46, why:"Arsenal rate him good value but Newcastle are holding out nearer £100m, and the Gunners have other £100m-plus targets to weigh. A move needs Newcastle to soften or Arsenal to reprioritise.", src:"Football365"},
+  {player:"Julian Alvarez", from:"Atletico Madrid", to:"Arsenal", pos:"Striker", fee:"Atletico want £100m+", stage:"Arsenal pushing, Atletico cool", score:44, why:"Arsenal are pushing and may offer Gyokeres in part-exchange, but Barcelona's £85m bid is on the table, Atletico want £100m-plus, and their latest sentiment is a refusal to sell.", src:"Football365 / Romano"},
+  {player:"Yan Diomande", from:"RB Leipzig", to:"Liverpool", pos:"Winger", fee:"~£86m", stage:"Liverpool's top winger target", score:44, why:"Now framed as Liverpool's leading target to help replace Salah's output, but at £86m-plus they'll hit the same obstacles that stalled earlier pursuits. Central to their window.", src:"Football365"},
+  {player:"Emiliano Martinez", from:"Aston Villa", to:"Juventus", pos:"Goalkeeper", fee:"~£10m", stage:"Villa softening demands", score:42, why:"Di Marzio reports Villa have begun softening their demands for the World Cup-winning keeper. Juventus have long been keen, and Villa's goalkeeper scouting suggests they're planning for life without him.", src:"Di Marzio"},
+  {player:"Adam Wharton", from:"Crystal Palace", to:"Liverpool", pos:"Midfielder", fee:"~£100m-rated", stage:"Not the priority target", score:40, why:"Liverpool's overwhelming priority is a winger, but an extra midfielder isn't out of the question. The snags: Wharton isn't their top target, he's rated near £100m, and Palace want to keep him.", src:"Football365"},
+  {player:"Curtis Jones", from:"Liverpool", to:"Nott'm Forest", pos:"Midfielder", fee:"TBC", stage:"Forest enquiries", score:40, why:"Forest, flush from the Elliot Anderson windfall, have Jones on their agenda — which suits Liverpool after Inter talks stalled short of an agreement. No fee discussed publicly yet.", src:"Football365"},
+  {player:"Ismaila Sarr", from:"Crystal Palace", to:"Man Utd", pos:"Forward", fee:"Palace want £45m+", stage:"Enquiry made", score:36, why:"United have enquired about the Palace man — a boyhood United fan fresh off a strong season. Palace will demand a hefty fee, but the player is keen.", src:"FootballTransfers"},
+  {player:"Joshua Zirkzee", from:"Man Utd", to:"Juventus", pos:"Striker", fee:"TBC", stage:"Re-emerged as target", score:34, why:"Juventus have re-emerged as suitors for the out-of-favour United striker, who could be moved on as United reshape the front line. Early but a genuine exit route.", src:"FootballTransfers"},
+  {player:"Alex Scott", from:"Bournemouth", to:"Man Utd", pos:"Midfielder", fee:"Bournemouth want £70m", stage:"United cooling, player favours Arsenal", score:32, why:"United are only willing to pay around £40m and are close to walking after Bournemouth stood firm on £70m. The England man is also said to favour Arsenal, muddying United's pursuit.", src:"Football365 / TEAMtalk"},
+  {player:"Rayan", from:"Bournemouth", to:"Liverpool", pos:"Winger", fee:"£130m release clause", stage:"Target, clause an obstacle", score:30, why:"Liverpool admire the Bournemouth sensation as a Salah replacement and he took to the Premier League instantly — but a £130m release clause makes it very difficult.", src:"Football365"},
+  {player:"Danilo Santos", from:"Botafogo", to:"Man Utd", pos:"Midfielder", fee:"~£34m", stage:"Talks opened", score:30, why:"United opened talks with Botafogo as they hunt midfield legs alongside the Ederson deal. Early-stage, but a live line given how thin United's options have been.", src:"Football365"},
+  {player:"Pedro Neto", from:"Chelsea", to:"Al-Hilal", pos:"Forward", fee:"TBC", stage:"Mendes offering him", score:26, why:"Agent Jorge Mendes has reportedly offered Neto to Al-Hilal amid concern over his game time in Chelsea's 3-4-2-1. Very early and player-side; nothing agreed and Chelsea aren't pushing it.", src:"Sports Mole"},
+  {player:"Malo Gusto", from:"Chelsea", to:"Man City", pos:"Right-back", fee:"Chelsea ask €87m", stage:"Player willing, clubs far apart", score:24, why:"Gusto is said to have agreed personal terms with City, but Chelsea's €87m ask is considered prohibitive and the clubs remain a long way apart on price.", src:"FootballTransfers"}
 ];
+
+// Editorial squad-needs per club (informed by current business + PL site / Sky / F365 reporting)
+const CLUB_NEEDS = {
+  "Arsenal": {tags:["Left winger","Striker","Centre-back"], text:"A direct, pacey left winger is the clear priority (Tzolis agreed, Barcola-type profiles admired), plus a marquee striker (chasing Álvarez). Saliba's injury means centre-back cover is now urgent too."},
+  "Aston Villa": {tags:["Attacking mid","Goalkeeper","Winger"], text:"Banked a huge Rogers fee and must keep selling for PSR. Need a creative No.10 to replace Rogers' chance creation, a keeper if Martínez leaves for Juventus, and wide help — Joao Gomes is incoming for the midfield."},
+  "Bournemouth": {tags:["Centre-back","Striker"], text:"A left-sided centre-back to replace Senesi and a new striker are the priorities, all while fending off bids for prized assets Rayan, Kroupi and Alex Scott."},
+  "Brentford": {tags:["Left winger","Central mid"], text:"Left wing and central midfield are the target areas after early recruitment; Igor Thiago (£100m+) is not for sale, so funds are there to strengthen the spine."},
+  "Brighton": {tags:["Right-back","Centre-back","Striker"], text:"A busy list: right-back, centre-back, midfield and a striker, while resisting Man Utd's push for Carlos Baleba which would fund much of it."},
+  "Burnley": {tags:["Centre-back","Striker","Central mid"], text:"Newly promoted and survival-focused — need a Premier League-ready spine: a commanding centre-back, midfield legs and a proven goalscorer to avoid an immediate relegation fight."},
+  "Chelsea": {tags:["Centre-back","Left-back","Left winger"], text:"Alonso wants a centre-back (Lacroix all but done), a left-back (Chavarría close) and a left winger, while thinning a crowded forward line — Delap, Garnacho and Neto are all potential exits."},
+  "Crystal Palace": {tags:["Centre-back","Central mid","Wing-back"], text:"Reinvesting the Lacroix money into a centre-back, two central midfielders and a right wing-back, with a real fight on to keep Adam Wharton and Ismaila Sarr from bigger clubs."},
+  "Everton": {tags:["Right-back","Striker","Defensive mid"], text:"Right-back, a striker (pushing hard for Delap) and a defensive midfielder are the priorities as Moyes reshapes the squad; a Grealish loan has also been explored."},
+  "Fulham": {tags:["Striker","Winger","Right-back"], text:"Need a striker after Jiménez's exit, a winger with loan/contract situations unresolved, and a right-back — with a new manager appointment still being finalised."},
+  "Leeds United": {tags:["Goalkeeper","Striker","Left winger"], text:"Promoted and rebuilding for survival: a goalkeeper, a reliable striker and a left winger top the list, with Strand Larsen a long-standing target."},
+  "Liverpool": {tags:["Winger","Right-back","Midfield"], text:"Replacing Salah is the defining task — two wingers wanted, with Diomande the top target — plus a right-back after Bradley's injury and added midfield depth."},
+  "Man City": {tags:["Striker","Right-back"], text:"With the Elliot Anderson mega-deal landed, focus shifts to a striker (Kroupi and Bouaddi-type profiles) and a right-back; the goalkeeping situation is also being reviewed."},
+  "Man Utd": {tags:["Central mid","Left winger","Left-back"], text:"A controlling midfielder to replace Casemiro is the must (Ederson agreed, Baleba/Koné chased), with a left winger and left-back cover also on the list as the front line is reshaped."},
+  "Newcastle": {tags:["Striker","Left winger","Goalkeeper"], text:"A full rebuild under a new sporting director — 6-10 arrivals expected, led by a striker, a left winger, a goalkeeper and a defensive midfielder, with several senior players up for sale."},
+  "Nott'm Forest": {tags:["Central mid","Goalkeeper","Centre-back"], text:"Sitting on the Anderson windfall: two central midfielders (Bergvall, Curtis Jones eyed), a goalkeeper and a centre-back are the priorities."},
+  "Sunderland": {tags:["Right-back","Holding mid","Left winger"], text:"After last year's transformative spend, this is about depth for a Europa League campaign — a right-back, a holding midfielder and a left winger to cover the extra games."},
+  "Tottenham": {tags:["Winger","Central mid"], text:"Short on senior wide options — a winger is the standout gap (Savinho and Kroupi both chased) — plus a central midfielder, with De Zerbi wanting pace and directness out wide."},
+  "West Ham": {tags:["Centre-back","Central mid"], text:"Priority is holding onto prized assets like Bowen and Mateus Fernandes (both courted), then adding a centre-back and midfield legs to steady a leaky side."},
+  "Wolves": {tags:["Central mid","Forward"], text:"Need to replace Joao Gomes' energy in midfield if he leaves for Villa, and add end product up top, while bracing for bids on their remaining stars."}
+};
+
+const PL = ["Arsenal","Aston Villa","Bournemouth","Brentford","Brighton","Burnley","Chelsea","Crystal Palace","Everton","Fulham","Leeds United","Liverpool","Man City","Man Utd","Newcastle","Nott'm Forest","Sunderland","Tottenham","West Ham","Wolves"];
 
 const $ = s => document.querySelector(s);
 const listEl = $("#list"), searchEl = $("#search"), clubEl = $("#club"), sortEl = $("#sort"), countEl = $("#count");
 
 function colour(p){ return p>=70?"var(--hi)":p>=40?"var(--mid)":"var(--lo)"; }
+function slug(c){ return c.replace(/[^a-z0-9]/gi,"").toLowerCase(); }
 
-// Build club filter (both from and to clubs that are PL)
-const PL = ["Arsenal","Aston Villa","Bournemouth","Brentford","Brighton","Burnley","Chelsea","Crystal Palace","Everton","Fulham","Leeds United","Liverpool","Man City","Man Utd","Newcastle","Nott'm Forest","Sunderland","Tottenham","West Ham","Wolves"];
+// ---- Tabs ----
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    $("#view-"+t.dataset.view).classList.add("active");
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+});
+
+// ---- Club filter dropdown (rumours view) ----
 const clubsInData = new Set();
 RUMOURS.forEach(r=>{[r.from,r.to].forEach(c=>{if(PL.includes(c))clubsInData.add(c);});});
 clubEl.innerHTML = '<option value="">All clubs</option>' + [...clubsInData].sort().map(c=>`<option>${c}</option>`).join("");
@@ -202,11 +284,49 @@ searchEl.addEventListener("input",render);
 clubEl.addEventListener("change",render);
 sortEl.addEventListener("change",render);
 
+// ---- Clubs view (needs + links) ----
+function linkRow(r, dir){
+  const c = colour(r.score);
+  const other = dir==="in" ? r.from : r.to;
+  const arrow = dir==="in" ? "from" : "to";
+  return `<div class="linkrow">
+      <span><span class="lp">${r.player}</span> <span class="lsub">${r.pos} · ${arrow} ${other}</span></span>
+      <span class="linkpct" style="color:${c}">${r.score}%</span>
+    </div>`;
+}
+
+function buildClubs(){
+  const nav = PL.map(c=>`<a href="#club-${slug(c)}">${c}</a>`).join("");
+  $("#clubnav").innerHTML = nav;
+
+  $("#clublist").innerHTML = PL.map(club=>{
+    const incoming = RUMOURS.filter(r=>r.to===club).sort((a,b)=>b.score-a.score);
+    const outgoing = RUMOURS.filter(r=>r.from===club).sort((a,b)=>b.score-a.score);
+    const need = CLUB_NEEDS[club];
+    const needHtml = need ? `<div class="needbox">
+        <p class="lbl">What they need</p>
+        <div class="needtags">${need.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        <p class="needtext">${need.text}</p>
+      </div>` : "";
+    const inHtml = incoming.length ? incoming.map(r=>linkRow(r,"in")).join("") : '<div class="emptyk">No incoming links right now.</div>';
+    const outHtml = outgoing.length ? outgoing.map(r=>linkRow(r,"out")).join("") : '<div class="emptyk">No exit links right now.</div>';
+    return `<div class="clubcard" id="club-${slug(club)}">
+      <h3>${club}</h3>
+      ${needHtml}
+      <div class="cl-cols">
+        <div><h4>⬇︎ Linked to join</h4>${inHtml}</div>
+        <div><h4>⬆︎ Linked to leave</h4>${outHtml}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
 const d = new Date(LAST_UPDATED+"T00:00:00");
 const fmt = d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
 $("#updated").innerHTML = "Updated<br><b>"+fmt+"</b>";
 $("#footdate").textContent = fmt;
 render();
+buildClubs();
 
 // Register service worker for offline use (PWA)
 if("serviceWorker" in navigator){

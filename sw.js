@@ -1,6 +1,6 @@
 // Service worker for PL Transfer Rumour Tracker
 // Cache-first for app shell so it opens instantly and works offline.
-const CACHE = "pl-transfers-v3";
+const CACHE = "pl-transfers-v4";
 const ASSETS = [
   "./",
   "./index.html",
